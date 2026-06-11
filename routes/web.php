@@ -27,6 +27,7 @@ Route::get('/rekap/{id}', [RecapController::class, 'show'])->name('rekap.show');
 Route::get('/kelola/karyawan', [EmployeeController::class, 'index'])->name('kelola.karyawan');
 Route::get('/kelola/karyawan/create', [EmployeeController::class, 'create'])->name('kelola.karyawan.create');
 Route::get('/kelola/karyawan/{id}/edit', [EmployeeController::class, 'edit'])->name('kelola.karyawan.edit');
+Route::get('/biodata', [EmployeeController::class, 'edit'])->name('biodata.edit');
 
 Route::get('/kelola/variabel', [VariableController::class, 'index'])->name('kelola.variabel');
 Route::get('/kelola/indikator', [IndicatorController::class, 'index'])->name('kelola.indikator');

@@ -1,20 +1,42 @@
-<header class="topbar bg-white border-bottom p-2">
-    <div class="container-fluid d-flex align-items-center justify-content-between">
-        <div>
-            <h5 class="mb-0">@yield('page_title','Dashboard')</h5>
+@php
+    $pageRole = $pageRole ?? 'hr';
+    $periods = $periods ?? [];
+    $userName = $userName ?? 'Admin APES';
+    $userRoleLabel = $userRoleLabel ?? ucfirst($pageRole);
+    $pageSubtitle = $pageSubtitle ?? 'Dashboard operasional';
+@endphp
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <div class="topbar-copy">
+            <span class="topbar-kicker">APES Workspace</span>
+            <h1>@yield('page_title', 'Dashboard')</h1>
+            <p>{{ $pageSubtitle }}</p>
         </div>
-        <div class="d-flex align-items-center">
-            <select class="form-select form-select-sm me-3" style="width:auto;">
-                <option>Periode: Default</option>
-            </select>
+
+        <div class="topbar-actions">
+            <div class="topbar-filter">
+                <span>Periode</span>
+                <select class="form-select form-select-sm">
+                    @forelse($periods as $period)
+                        <option value="{{ $period['value'] }}">{{ $period['label'] }}</option>
+                    @empty
+                        <option>Triwulan II 2026</option>
+                    @endforelse
+                </select>
+            </div>
+
             <div class="dropdown">
-                <a class="d-flex align-items-center text-decoration-none" href="#" role="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                    <img src="https://via.placeholder.com/34" alt="avatar" class="rounded-circle me-2">
-                    <strong>User</strong>
+                <a class="topbar-user" href="#" role="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                    <img class="topbar-avatar" src="{{ asset('images/avatar-default.svg') }}" alt="{{ $userName }}">
+                    <span class="topbar-user-copy">
+                        <strong>{{ $userName }}</strong>
+                        <small>{{ $userRoleLabel }}</small>
+                    </span>
                 </a>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="userMenu">
                     <li><a class="dropdown-item" href="#">Profile</a></li>
-                    <li><a class="dropdown-item" href="#">Logout</a></li>
+                    <li><a class="dropdown-item" href="{{ route('login') }}">Logout</a></li>
                 </ul>
             </div>
         </div>

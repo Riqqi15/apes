@@ -1,13 +1,14 @@
-<div class="stat-card card shadow-sm">
-  <div class="card-body">
-    <div class="d-flex justify-content-between align-items-center">
-      <div>
-        <small class="text-muted">{{ $title ?? 'Title' }}</small>
-        <h5 class="mb-0">{{ $value ?? '—' }}</h5>
-      </div>
-      <div class="ms-3">
-        @if(isset($icon)) {!! $icon !!} @endif
-      </div>
+@php
+    $tone = $tone ?? 'yellow';
+@endphp
+
+<div class="stat-card stat-card-{{ $tone }} card">
+    <div class="stat-card-icon">{!! $icon ?? '<span>AP</span>' !!}</div>
+    <div class="stat-card-body">
+        <p class="stat-card-title">{{ $title ?? 'Title' }}</p>
+        <div class="stat-card-value">{{ $value ?? '0' }}</div>
+        @if(!empty($subtitle))
+            <p class="stat-card-subtitle">{{ $subtitle }}</p>
+        @endif
     </div>
-  </div>
 </div>

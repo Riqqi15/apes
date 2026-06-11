@@ -16,8 +16,17 @@ class EmployeeController extends Controller
         return view('employees.create');
     }
 
-    public function edit()
+    public function edit($id = null)
     {
-        return view('employees.edit');
+        return view('employees.edit', [
+            'employee' => [
+                'name' => 'Dewi Anggraini',
+                'nip' => 'EMP-2026-0042',
+                'department' => 'Finance',
+                'position' => 'Senior Analyst',
+                'email' => 'dewi.anggraini@apes.co.id',
+                'phone' => '0812-3456-7890',
+            ],
+        ]);
     }
 }

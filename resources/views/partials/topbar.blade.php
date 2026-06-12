@@ -1,8 +1,14 @@
 @php
-    $pageRole = $pageRole ?? 'hr';
+    $currentUser = auth()->user();
+    $pageRole = $currentUser?->akses_user ?? ($pageRole ?? 'hr');
     $periods = $periods ?? [];
-    $userName = $userName ?? 'Admin APES';
-    $userRoleLabel = $userRoleLabel ?? ucfirst($pageRole);
+    $userName = $currentUser?->hr?->nama_hr
+        ?? $currentUser?->direktur?->nama_direktur
+        ?? $currentUser?->karyawan?->nama_lengkap
+        ?? ($userName ?? 'APES User');
+    $userRoleLabel = $currentUser?->akses_user
+        ? ucfirst($currentUser->akses_user)
+        : ($userRoleLabel ?? ucfirst($pageRole));
     $pageSubtitle = $pageSubtitle ?? 'Dashboard operasional';
 @endphp
 
@@ -36,7 +42,12 @@
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="userMenu">
                     <li><a class="dropdown-item" href="#">Profile</a></li>
-                    <li><a class="dropdown-item" href="{{ route('login') }}">Logout</a></li>
+                    <li>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button class="dropdown-item" type="submit">Logout</button>
+                        </form>
+                    </li>
                 </ul>
             </div>
         </div>

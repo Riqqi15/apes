@@ -25,23 +25,34 @@
         </span>
       </div>
 
-      <form class="auth-form">
+      <form class="auth-form" method="POST" action="{{ route('register.store') }}">
+        @csrf
+
         <div class="form-field">
-          <label class="form-label">Full Name</label>
-          <input class="form-control" type="text" placeholder="Nama lengkap">
+          <label class="form-label" for="full_name">Full Name</label>
+          <input id="full_name" name="full_name" class="form-control" type="text" placeholder="Nama lengkap" value="{{ old('full_name') }}">
+          @error('full_name')
+            <small class="text-danger d-block mt-2">{{ $message }}</small>
+          @enderror
         </div>
         <div class="form-field">
-          <label class="form-label">Username</label>
-          <input class="form-control" type="text" placeholder="Username">
+          <label class="form-label" for="username">Username</label>
+          <input id="username" name="username" class="form-control" type="text" placeholder="Username" value="{{ old('username') }}">
+          @error('username')
+            <small class="text-danger d-block mt-2">{{ $message }}</small>
+          @enderror
         </div>
         <div class="form-field">
-          <label class="form-label">Email</label>
-          <input class="form-control" type="email" placeholder="Email">
+          <label class="form-label" for="email">Email</label>
+          <input id="email" name="email" class="form-control" type="email" placeholder="Email" value="{{ old('email') }}">
+          @error('email')
+            <small class="text-danger d-block mt-2">{{ $message }}</small>
+          @enderror
         </div>
         <div class="form-field">
           <label class="form-label" for="register-password">Password</label>
           <div class="password-control">
-            <input id="register-password" class="form-control" type="password" placeholder="Password" autocomplete="new-password" maxlength="8">
+            <input id="register-password" name="password" class="form-control" type="password" placeholder="Password" autocomplete="new-password">
             <button class="password-toggle" type="button" data-password-toggle data-input-target="register-password" aria-label="Tampilkan password" aria-pressed="false">
               <svg data-password-icon xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M2.25 12s3.75-6.75 9.75-6.75S21.75 12 21.75 12 18 18.75 12 18.75 2.25 12 2.25 12Z"/>
@@ -49,11 +60,14 @@
               </svg>
             </button>
           </div>
+          @error('password')
+            <small class="text-danger d-block mt-2">{{ $message }}</small>
+          @enderror
         </div>
         <div class="form-field">
           <label class="form-label" for="register-password-confirmation">Confirm Password</label>
           <div class="password-control">
-            <input id="register-password-confirmation" class="form-control" type="password" placeholder="Confirm password" autocomplete="new-password" maxlength="8">
+            <input id="register-password-confirmation" name="password_confirmation" class="form-control" type="password" placeholder="Confirm password" autocomplete="new-password">
             <button class="password-toggle" type="button" data-password-toggle data-input-target="register-password-confirmation" aria-label="Tampilkan password" aria-pressed="false">
               <svg data-password-icon xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M2.25 12s3.75-6.75 9.75-6.75S21.75 12 21.75 12 18 18.75 12 18.75 2.25 12 2.25 12Z"/>
@@ -63,14 +77,17 @@
           </div>
         </div>
         <div class="form-field">
-          <label class="form-label">Role</label>
+          <label class="form-label" for="role">Role</label>
           <div class="auth-select-control">
-            <select class="form-select">
-              <option value="hr">HR</option>
-              <option value="direktur">Direktur</option>
-              <option value="karyawan">Karyawan</option>
+            <select id="role" name="role" class="form-select">
+              <option value="hr" @selected(old('role') === 'hr')>HR</option>
+              <option value="direktur" @selected(old('role') === 'direktur')>Direktur</option>
+              <option value="karyawan" @selected(old('role', 'karyawan') === 'karyawan')>Karyawan</option>
             </select>
           </div>
+          @error('role')
+            <small class="text-danger d-block mt-2">{{ $message }}</small>
+          @enderror
         </div>
 
         <button class="btn btn-apes auth-submit" type="submit">Register</button>

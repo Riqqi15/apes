@@ -6,30 +6,56 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
+            $table->increments('id_users');
+            $table->string('username', 191)->unique();
+            $table->string('email', 191)->unique();
             $table->string('password');
-            $table->rememberToken();
+            $table->string('akses_user', 20);
             $table->timestamps();
         });
 
-        Schema::create('password_reset_tokens', function (Blueprint $table) {
-            $table->string('email')->primary();
-            $table->string('token');
-            $table->timestamp('created_at')->nullable();
+        Schema::create('hr', function (Blueprint $table) {
+            $table->increments('id_hr');
+            $table->string('nama_hr', 100);
+            $table->string('jabatan', 50);
+            $table->string('email', 100);
+            $table->unsignedInteger('id_users')->nullable();
+            $table->timestamps();
+
+            $table->foreign('id_users')->references('id_users')->on('users')->nullOnDelete();
+        });
+
+        Schema::create('direktur', function (Blueprint $table) {
+            $table->increments('id_direktur');
+            $table->string('nama_direktur', 100);
+            $table->string('jabatan', 50);
+            $table->string('email', 100);
+            $table->unsignedInteger('id_users')->nullable();
+            $table->timestamps();
+
+            $table->foreign('id_users')->references('id_users')->on('users')->nullOnDelete();
+        });
+
+        Schema::create('karyawan', function (Blueprint $table) {
+            $table->increments('id_karyawan');
+            $table->unsignedInteger('id_users')->nullable();
+            $table->string('nip', 40);
+            $table->string('nama_lengkap', 100);
+            $table->string('no_hp', 20)->nullable();
+            $table->string('jabatan', 50)->nullable();
+            $table->date('tanggal_lahir')->nullable();
+            $table->string('alamat', 255)->nullable();
+            $table->timestamps();
+
+            $table->foreign('id_users')->references('id_users')->on('users')->nullOnDelete();
         });
 
         Schema::create('sessions', function (Blueprint $table) {
-            $table->string('id')->primary();
-            $table->foreignId('user_id')->nullable()->index();
+            $table->string('id', 191)->primary();
+            $table->unsignedInteger('user_id')->nullable()->index();
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
             $table->longText('payload');
@@ -37,13 +63,12 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('karyawan');
+        Schema::dropIfExists('direktur');
+        Schema::dropIfExists('hr');
+        Schema::dropIfExists('users');
     }
 };

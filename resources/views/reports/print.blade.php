@@ -21,7 +21,7 @@
     <div class="report-shell">
         <div class="no-print report-actions">
             <button class="btn btn-warning" onclick="window.print()">Print</button>
-            <button class="btn btn-outline-secondary" onclick="window.close()">Tutup</button>
+            <button class="btn btn-outline-secondary" onclick="closeReport()">Tutup</button>
         </div>
         <div class="report-head">
             <div>
@@ -50,5 +50,20 @@
             </div>
         </div>
     </div>
+    <script>
+        function closeReport() {
+            if (window.opener && !window.opener.closed) {
+                window.close();
+                return;
+            }
+
+            if (window.history.length > 1) {
+                window.history.back();
+                return;
+            }
+
+            window.location.href = "{{ route('dashboard.direktur') }}";
+        }
+    </script>
 </body>
 </html>

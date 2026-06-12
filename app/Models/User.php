@@ -2,31 +2,44 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password'])]
-#[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    protected $table = 'users';
+    protected $primaryKey = 'id_users';
+    public $incrementing = true;
+    protected $keyType = 'int';
+
+    protected $fillable = [
+        'username',
+        'email',
+        'password',
+        'akses_user',
+    ];
+
+    protected $hidden = [
+        'password',
+    ];
+
+    public function hr(): HasOne
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->hasOne(Hr::class, 'id_users', 'id_users');
+    }
+
+    public function direktur(): HasOne
+    {
+        return $this->hasOne(Direktur::class, 'id_users', 'id_users');
+    }
+
+    public function karyawan(): HasOne
+    {
+        return $this->hasOne(Karyawan::class, 'id_users', 'id_users');
     }
 }

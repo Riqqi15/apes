@@ -8,9 +8,11 @@ class HrController extends Controller
 {
     public function index()
     {
+        $user = auth()->user();
+
         return view('dashboards.hr', [
             'pageRole' => 'hr',
-            'userName' => 'Rani Puspita',
+            'userName' => $user?->hr?->nama_hr ?? $user?->username ?? 'HR Department',
             'userRoleLabel' => 'HR Department',
             'pageSubtitle' => 'Pantau data karyawan, indikator, dan progres penilaian dalam satu layar.',
             'periods' => [

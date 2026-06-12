@@ -1,5 +1,6 @@
 @php
-    $pageRole = $pageRole ?? 'hr';
+    $currentUser = auth()->user();
+    $pageRole = $currentUser?->akses_user ?? ($pageRole ?? 'hr');
     $pageRoleLabel = match ($pageRole) {
         'direktur' => 'Direktur',
         'karyawan' => 'Karyawan',
@@ -60,6 +61,9 @@
             <strong>Triwulan II 2026</strong>
             <small>Data demo untuk preview dashboard</small>
         </div>
-        <a href="{{ route('login') }}" class="sidebar-logout btn btn-apes w-100">Logout</a>
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit" class="sidebar-logout btn btn-apes w-100">Logout</button>
+        </form>
     </div>
 </aside>

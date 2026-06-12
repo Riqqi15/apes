@@ -41,16 +41,20 @@ Follow the APES mockup style:
 
 - Clean internal HR dashboard UI.
 - White page background with light gray application surface.
-- Dark blue vertical sidebar for contrast.
-- Yellow as the main brand/accent color.
+- Yellow is the primary brand color for navbar surfaces and main CTAs.
+- Keep the topbar white and clean by default; reserve yellow for sidebar, CTAs, and accent surfaces.
+- Dark blue is now reserved for text, borders, and structural accents only.
 - Yellow active navigation state or yellow highlight on active navigation.
+- On yellow navigation surfaces, use soft cream hover states and navy text for readable contrast.
 - White cards with subtle border and soft shadow.
 - Compact dashboard cards.
 - Data tables with clear spacing and action icons.
 - Rounded form inputs and buttons.
 - Professional BUMN-style corporate look.
 - Use Inter as the default font family for all pages, components, and UI states.
-- Use yellow as the hero/accent color, keep most text black or near-black, and use dark blue only for structural contrast like sidebar/navigation.
+- Use yellow as the hero/accent color, keep most text black or near-black, and use dark blue only for structural accents and labels.
+- Primary buttons should use yellow/amber gradients with dark text; hover states may darken to warm amber but should stay readable.
+- Logout and destructive-like actions should use a strong contrasting navy/amber treatment rather than muted gray.
 - Use green for success, red for danger, and orange for warning.
 - Avoid decorative landing-page sections.
 - Avoid dark mode unless requested.

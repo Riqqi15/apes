@@ -8,9 +8,11 @@ class KaryawanController extends Controller
 {
     public function index()
     {
+        $user = auth()->user();
+
         return view('dashboards.karyawan', [
             'pageRole' => 'karyawan',
-            'userName' => 'Dewi Anggraini',
+            'userName' => $user?->karyawan?->nama_lengkap ?? $user?->username ?? 'Karyawan',
             'userRoleLabel' => 'Karyawan',
             'pageSubtitle' => 'Lihat skor terbaru, status penilaian, dan kontribusi Anda sebagai evaluator.',
             'periods' => [

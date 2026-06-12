@@ -8,9 +8,11 @@ class DirekturController extends Controller
 {
     public function index()
     {
+        $user = auth()->user();
+
         return view('dashboards.direktur', [
             'pageRole' => 'direktur',
-            'userName' => 'Direktur Utama',
+            'userName' => $user?->direktur?->nama_direktur ?? $user?->username ?? 'Direktur',
             'userRoleLabel' => 'Direktur',
             'pageSubtitle' => 'Ringkasan kinerja 360, distribusi grade, dan performa tiap departemen.',
             'periods' => [

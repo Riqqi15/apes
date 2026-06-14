@@ -107,9 +107,72 @@ function bindTopbarScrollState() {
     window.addEventListener('scroll', sync, { passive: true });
 }
 
+function bindAssessmentForm() {
+    const form = document.querySelector('[data-assessment-form]');
+
+    if (!form) {
+        return;
+    }
+
+    const groups = Array.from(form.querySelectorAll('[data-score-group]'));
+    const progressCount = form.querySelector('[data-progress-count]');
+    const progressTotal = form.querySelector('[data-progress-total]');
+    const progressBar = form.querySelector('[data-progress-bar]');
+    const total = groups.length;
+
+    if (progressTotal) {
+        progressTotal.textContent = String(total);
+    }
+
+    const syncGroup = (group) => {
+        const checked = group.querySelector('input[type="radio"]:checked');
+
+        group.querySelectorAll('[data-score-button]').forEach((button) => {
+            button.classList.toggle('is-active', button.contains(checked));
+        });
+    };
+
+    const syncProgress = () => {
+        let completed = 0;
+
+        groups.forEach((group) => {
+            const checked = group.querySelector('input[type="radio"]:checked');
+            if (checked) {
+                completed += 1;
+            }
+
+            syncGroup(group);
+        });
+
+        if (progressCount) {
+            progressCount.textContent = String(completed);
+        }
+
+        if (progressBar) {
+            progressBar.style.width = `${total > 0 ? Math.round((completed / total) * 100) : 0}%`;
+        }
+    };
+
+    form.addEventListener('change', (event) => {
+        if (!event.target.matches('input[type="radio"]')) {
+            return;
+        }
+
+        const group = event.target.closest('[data-score-group]');
+        if (group) {
+            syncGroup(group);
+        }
+
+        syncProgress();
+    });
+
+    syncProgress();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     document.body.classList.add('js-ready');
     revealElements();
     animateCounters();
     bindTopbarScrollState();
+    bindAssessmentForm();
 });

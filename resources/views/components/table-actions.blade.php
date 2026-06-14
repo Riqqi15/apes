@@ -26,6 +26,13 @@
             </svg>
         </a>
     @endif
+    @if(!empty($start))
+        <a href="{{ $start }}" class="action-btn action-btn-start" title="{{ $startLabel ?? 'Mulai' }}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M8 5v14l11-7-11-7z"></path>
+            </svg>
+        </a>
+    @endif
     @if(!empty($delete))
         <form method="POST" action="{{ $delete }}" onsubmit="return confirm('Hapus data ini?')">
             @csrf

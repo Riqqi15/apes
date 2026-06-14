@@ -5,47 +5,140 @@
 
 @section('content')
 <div class="dashboard-grid">
-    <section class="dashboard-card card">
-        <div class="dashboard-card-head">
-            <div>
-                <span class="section-pill">Step 1</span>
-                <h3>Pilih periode, karyawan, dan mulai penilaian</h3>
-            </div>
+    @if(session('status'))
+        <div class="alert alert-success border-0 shadow-sm mb-0">{{ session('status') }}</div>
+    @endif
+
+    <section class="hero-panel card hero-panel-alt">
+        <div class="hero-panel-copy">
+            <span class="section-pill">Step 1</span>
+            <h2>Isi penilaian untuk {{ $assignment->assessee?->nama_lengkap ?? 'karyawan' }}</h2>
+            <p>Periode {{ $assignment->period?->nama_periode ?? '-' }}, tipe penilai {{ $assignment->jenis_penilai }}, dan skor akan langsung memperbarui rekap pribadi setelah Anda menyimpan.</p>
         </div>
-        <div class="p-4">
-            <div class="row g-3">
-                <div class="col-md-4"><label class="form-label fw-semibold">Periode</label><select class="form-select">@forelse($periods as $period)<option value="{{ $period->id_periode }}">{{ $period->nama_periode }}</option>@empty<option value="">Belum ada periode</option>@endforelse</select></div>
-                <div class="col-md-4"><label class="form-label fw-semibold">Karyawan</label><select class="form-select">@forelse($employees as $employee)<option value="{{ $employee->id_karyawan }}">{{ $employee->nama_lengkap }}</option>@empty<option value="">Belum ada karyawan</option>@endforelse</select></div>
-                <div class="col-md-4"><label class="form-label fw-semibold">Role</label><select class="form-select">@forelse($roleTypes as $role)<option value="{{ $role }}">{{ $role }}</option>@empty<option value="">Belum ada role</option>@endforelse</select></div>
+        <div class="hero-panel-summary">
+            <div class="summary-chip summary-chip-tight">
+                <strong>{{ $assignment->period?->nama_periode ?? '-' }}</strong>
+                <span>Periode</span>
+            </div>
+            <div class="summary-chip summary-chip-tight">
+                <strong>{{ $assignment->assessee?->nama_lengkap ?? '-' }}</strong>
+                <span>Assessee</span>
+            </div>
+            <div class="summary-chip summary-chip-tight">
+                <strong>{{ $assignment->status }}</strong>
+                <span>Status assignment</span>
             </div>
         </div>
     </section>
 
-    <section class="dashboard-card card">
-        <div class="dashboard-card-head">
-            <div>
-                <span class="section-pill">Step 2</span>
-                <h3>Skor per indikator</h3>
+    <section class="content-grid content-grid-wide assessment-layout">
+        <div class="dashboard-card card assessment-main">
+            <div class="dashboard-card-head">
+                <div>
+                    <span class="section-pill">Step 2</span>
+                    <h3>Skor per indikator</h3>
+                </div>
+                <div class="assessment-progress-copy">
+                    <strong><span data-progress-count>{{ $completedIndicators }}</span>/<span data-progress-total>{{ $totalIndicators }}</span></strong>
+                    <span>indikator terisi</span>
+                </div>
             </div>
+
+            @if($existingScores !== [])
+                <div class="alert alert-warning border-0 mx-4 mt-3 mb-0">
+                    Anda sudah pernah menyimpan penilaian ini. Submit ulang akan menimpa skor lama dengan data terbaru.
+                </div>
+            @endif
+
+            <form id="assessment-submit" method="POST" action="{{ route('penilaian.submit', $assignment) }}" class="assessment-form" data-assessment-form>
+                @csrf
+                @foreach($indicatorGroups as $group)
+                    <section class="assessment-group">
+                        <div class="assessment-group-head">
+                            <div>
+                                <span class="section-pill">{{ $group['label'] }}</span>
+                                <h4>{{ $group['label'] }}</h4>
+                            </div>
+                            <small>{{ count($group['indicators']) }} indikator</small>
+                        </div>
+
+                        <div class="assessment-indicator-list">
+                            @foreach($group['indicators'] as $indicator)
+                                @php
+                                    $selectedValue = old('scores.' . $indicator->id_indikator, $existingScores[$indicator->id_indikator] ?? null);
+                                @endphp
+                                <div class="assessment-indicator">
+                                    <div class="assessment-indicator-copy">
+                                        <strong>{{ $indicator->nama_indikator }}</strong>
+                                        <span>{{ $indicator->nama_variabel_penilaian ?? 'Indikator AKHLAK' }}</span>
+                                    </div>
+                                    <div class="assessment-score-options" data-score-group>
+                                        @foreach($scoreOptions as $value => $option)
+                                            <label class="assessment-score-option {{ (string) $selectedValue === (string) $value ? 'is-active' : '' }}" data-score-button>
+                                                <input type="radio" name="scores[{{ $indicator->id_indikator }}]" value="{{ $value }}" @checked((string) $selectedValue === (string) $value)>
+                                                <span>{{ $value }}</span>
+                                                <small>{{ $option['label'] }}</small>
+                                            </label>
+                                        @endforeach
+                                    </div>
+                                    @error('scores.' . $indicator->id_indikator)
+                                        <small class="text-danger d-block mt-2">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            @endforeach
+                        </div>
+                    </section>
+                @endforeach
+
+                @error('scores')
+                    <div class="alert alert-danger border-0 mx-4 mb-0">{{ $message }}</div>
+                @enderror
+            </form>
         </div>
-        <div class="table-responsive">
-            <table class="table dashboard-table align-middle">
-                <thead>
-                    <tr><th>Variable</th><th>Indikator</th><th>Skor</th></tr>
-                </thead>
-                <tbody>
-                    @forelse($indicators as $indicator)
-                        <tr>
-                            <td>{{ $indicator->variabel?->nama_variabel }}</td>
-                            <td>{{ $indicator->nama_indikator }}</td>
-                            <td>1 - 5</td>
-                        </tr>
-                    @empty
-                        <tr><td colspan="3" class="text-center text-secondary py-4">Belum ada indikator aktif.</td></tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+
+        <aside class="dashboard-card card assessment-summary-panel">
+            <div class="dashboard-card-head">
+                <div>
+                    <span class="section-pill">Review</span>
+                    <h3>Ringkasan sebelum simpan</h3>
+                </div>
+            </div>
+
+            <div class="assessment-summary-body">
+                <div class="detail-list assessment-detail-list">
+                    <div>
+                        <strong>{{ $assignment->assessor?->nama_lengkap ?? '-' }}</strong>
+                        <span>Assessor</span>
+                    </div>
+                    <div>
+                        <strong>{{ $assignment->jenis_penilai }}</strong>
+                        <span>Tipe penilai</span>
+                    </div>
+                    <div>
+                        <strong>{{ $assignment->deadline?->format('d M Y') ?? '-' }}</strong>
+                        <span>Deadline</span>
+                    </div>
+                    <div>
+                        <strong>{{ $assignment->status }}</strong>
+                        <span>Status</span>
+                    </div>
+                </div>
+
+                <div class="assessment-progress-box">
+                    <div class="assessment-progress-bar">
+                        <span data-progress-bar style="width: {{ $totalIndicators > 0 ? round(($completedIndicators / $totalIndicators) * 100) : 0 }}%"></span>
+                    </div>
+                    <small>Progress pengisian</small>
+                </div>
+
+                <div class="assessment-note">
+                    Semua perubahan akan langsung tersimpan ke rekap pribadi setelah tombol simpan ditekan.
+                </div>
+
+                <button type="submit" form="assessment-submit" class="btn btn-apes w-100 auth-submit">Simpan penilaian</button>
+                <a href="{{ route('penilaian.assignments') }}" class="btn btn-outline-secondary w-100 mt-2">Kembali ke assignment</a>
+            </div>
+        </aside>
     </section>
 </div>
 @endsection

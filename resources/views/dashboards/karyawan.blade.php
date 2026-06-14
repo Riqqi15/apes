@@ -144,11 +144,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 </div>
             </div>
             <div class="quick-actions quick-actions-personal">
-                <a href="{{ route('penilaian.form') }}" class="quick-action">
+                <a href="{{ route('penilaian.assignments') }}" class="quick-action">
                     <span class="quick-action-icon material-symbols-rounded">fact_check</span>
                     <span class="quick-action-copy">
-                        <strong>Mulai penilaian</strong>
-                        <span>Isi form evaluasi yang ditugaskan</span>
+                        <strong>Lihat assignment</strong>
+                        <span>Buka penilaian yang menunggu diselesaikan</span>
                     </span>
                     <span class="quick-action-arrow material-symbols-rounded">north_east</span>
                 </a>

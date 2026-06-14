@@ -11,6 +11,8 @@ class Penilaian extends Model
     protected $primaryKey = 'id_penilaian';
 
     protected $fillable = [
+        'id_assignment',
+        'assessor_id',
         'id_karyawan',
         'id_indikator',
         'id_periode',
@@ -29,6 +31,11 @@ class Penilaian extends Model
     public function karyawan(): BelongsTo
     {
         return $this->belongsTo(Karyawan::class, 'id_karyawan', 'id_karyawan');
+    }
+
+    public function assignment(): BelongsTo
+    {
+        return $this->belongsTo(AssessorAssignment::class, 'id_assignment', 'id_assignment');
     }
 
     public function indikator(): BelongsTo

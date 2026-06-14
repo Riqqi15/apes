@@ -5,56 +5,126 @@
 
 @section('content')
 <div class="dashboard-grid">
-    <section class="hero-panel card hero-panel-personal">
-        <div class="hero-panel-copy">
-            <span class="section-pill">Personal Result</span>
-            <h2>Nilai final Anda adalah {{ $latestRecap?->nilai_akhir ?? '91.2' }}</h2>
-            <p>Grade {{ $latestRecap?->grade ?? 'A' }}, dengan performa paling kuat di Loyal dan Kolaboratif.</p>
-        </div>
-        <div class="hero-panel-summary">
-            <div class="summary-chip summary-chip-tight">
-                <strong>{{ $latestRecap?->nilai_akhir ?? '91.2' }}</strong>
-                <span>Final Score</span>
-            </div>
-            <div class="summary-chip summary-chip-tight">
-                <strong>{{ $latestRecap?->grade ?? 'A' }}</strong>
-                <span>Grade</span>
-            </div>
-        </div>
-    </section>
+    @if(session('status'))
+        <div class="alert alert-success border-0 shadow-sm mb-0">{{ session('status') }}</div>
+    @endif
 
-    <section class="content-grid content-grid-wide">
-        <div class="dashboard-card card">
-            <div class="dashboard-card-head">
-                <div>
-                    <span class="section-pill">360 Composition</span>
-                    <h3>Komposisi penilaian</h3>
+    @if(! $hasResult)
+        <section class="hero-panel card hero-panel-personal">
+            <div class="hero-panel-copy">
+                <span class="section-pill">Personal Result</span>
+                <h2>Belum ada hasil penilaian yang bisa ditampilkan</h2>
+                <p>Setelah assignment Anda diselesaikan, nilai final, grade, dan komposisi AKHLAK akan muncul di halaman ini.</p>
+            </div>
+            <div class="hero-panel-summary">
+                <a href="{{ route('penilaian.assignments') }}" class="btn btn-apes auth-submit">Lihat assignment</a>
+            </div>
+        </section>
+    @else
+        <section class="hero-panel card hero-panel-personal">
+            <div class="hero-panel-copy">
+                <span class="section-pill">Personal Result</span>
+                <h2>Nilai final Anda {{ number_format((float) $latestRecap->nilai_akhir, 1) }}</h2>
+                <p>Grade {{ $latestRecap->grade }}, periode {{ $latestRecap->period?->nama_periode ?? '-' }}. Semua komponen sudah dihitung dari data penilaian terbaru.</p>
+            </div>
+            <div class="hero-panel-summary">
+                <div class="summary-chip summary-chip-tight">
+                    <strong>{{ number_format((float) $latestRecap->nilai_akhir, 1) }}</strong>
+                    <span>Final score</span>
+                </div>
+                <div class="summary-chip summary-chip-tight">
+                    <strong>{{ $latestRecap->grade }}</strong>
+                    <span>Grade</span>
+                </div>
+                <div class="summary-chip summary-chip-tight">
+                    <strong>{{ $latestRecap->period?->nama_periode ?? '-' }}</strong>
+                    <span>Periode</span>
                 </div>
             </div>
-            <div class="component-bars">
-                <div class="component-row"><div class="component-label"><strong>Atasan Langsung</strong><span>40%</span></div><div class="component-track"><span style="width: 92%"></span></div><strong>92</strong></div>
-                <div class="component-row"><div class="component-label"><strong>Rekan Sejawat</strong><span>20%</span></div><div class="component-track"><span style="width: 90%"></span></div><strong>90</strong></div>
-                <div class="component-row"><div class="component-label"><strong>Bawahan</strong><span>30%</span></div><div class="component-track"><span style="width: 89%"></span></div><strong>89</strong></div>
-                <div class="component-row"><div class="component-label"><strong>Self</strong><span>10%</span></div><div class="component-track"><span style="width: 94%"></span></div><strong>94</strong></div>
-            </div>
-        </div>
+        </section>
 
-        <div class="dashboard-card card">
-            <div class="dashboard-card-head">
-                <div>
-                    <span class="section-pill">Variable Score</span>
-                    <h3>AKHLAK per variable</h3>
+        <section class="content-grid content-grid-wide">
+            <div class="dashboard-card card">
+                <div class="dashboard-card-head">
+                    <div>
+                        <span class="section-pill">360 Composition</span>
+                        <h3>Komposisi penilaian</h3>
+                    </div>
+                </div>
+                <div class="component-bars">
+                    @foreach($componentScores as $component)
+                        <div class="component-row">
+                            <div class="component-label">
+                                <strong>{{ $component['label'] }}</strong>
+                                <span>{{ $component['weight'] }}</span>
+                            </div>
+                            <div class="component-track">
+                                <span style="width: {{ max(0, min(100, (float) $component['value'])) }}%"></span>
+                            </div>
+                            <strong>{{ number_format((float) $component['value'], 1) }}</strong>
+                        </div>
+                    @endforeach
                 </div>
             </div>
-            <div class="variable-grid">
-                <div class="variable-pill"><strong>Amanah</strong><span>92</span></div>
-                <div class="variable-pill"><strong>Kompeten</strong><span>88</span></div>
-                <div class="variable-pill"><strong>Harmonis</strong><span>90</span></div>
-                <div class="variable-pill"><strong>Loyal</strong><span>95</span></div>
-                <div class="variable-pill"><strong>Adaptif</strong><span>87</span></div>
-                <div class="variable-pill"><strong>Kolaboratif</strong><span>93</span></div>
+
+            <div class="dashboard-card card">
+                <div class="dashboard-card-head">
+                    <div>
+                        <span class="section-pill">Variable Score</span>
+                        <h3>AKHLAK per variabel</h3>
+                    </div>
+                </div>
+                <div class="variable-grid">
+                    @foreach($variableScores as $variable)
+                        <div class="variable-pill">
+                            <strong>{{ $variable['name'] }}</strong>
+                            <span>{{ $variable['score'] }}</span>
+                        </div>
+                    @endforeach
+                </div>
             </div>
-        </div>
-    </section>
+        </section>
+
+        <section class="content-grid">
+            <div class="dashboard-card card">
+                <div class="dashboard-card-head">
+                    <div>
+                        <span class="section-pill">Recent Assignment</span>
+                        <h3>Riwayat evaluator</h3>
+                    </div>
+                </div>
+                <div class="timeline-list">
+                    @forelse($recentAssignments as $assignment)
+                        <div class="timeline-row">
+                            <div>
+                                <strong>{{ $assignment->period?->nama_periode ?? '-' }}</strong>
+                                <span>{{ $assignment->jenis_penilai }} oleh {{ $assignment->assessor?->nama_lengkap ?? '-' }}</span>
+                            </div>
+                            <span class="status-pill {{ $assignment->status === 'Selesai' ? 'status-pill-success' : 'status-pill-warning' }}">{{ $assignment->status }}</span>
+                        </div>
+                    @empty
+                        <div class="text-secondary">Belum ada riwayat assignment.</div>
+                    @endforelse
+                </div>
+            </div>
+
+            <div class="dashboard-card card">
+                <div class="dashboard-card-head">
+                    <div>
+                        <span class="section-pill">Grade Guide</span>
+                        <h3>Legenda kategori grade</h3>
+                    </div>
+                </div>
+                <div class="detail-list">
+                    @foreach($gradeLegend as $item)
+                        <div>
+                            <strong>Grade {{ $item['grade'] }} - {{ $item['label'] }}</strong>
+                            <span>{{ $item['range'] }}</span>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
 </div>
 @endsection

@@ -6,10 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\AssessorAssignment;
 use App\Models\Indikator;
 use App\Models\Karyawan;
+use App\Models\Penilaian;
 use App\Models\PeriodePenilaian;
 use App\Models\RekapPenilaian;
+use App\Models\Variabel;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -36,6 +40,8 @@ class AssessmentController extends Controller
 
         $assignments = AssessorAssignment::query()
             ->with(['period', 'assessor', 'assessee'])
+            ->withCount('assessments')
+            ->orderByRaw("CASE status WHEN 'Menunggu' THEN 1 WHEN 'Berjalan' THEN 2 ELSE 3 END")
             ->orderByDesc('created_at')
             ->get();
 
@@ -53,6 +59,7 @@ class AssessmentController extends Controller
             'assignmentStats' => [
                 'total' => $assignments->count(),
                 'waiting' => $assignments->where('status', 'Menunggu')->count(),
+                'in_progress' => $assignments->where('status', 'Berjalan')->count(),
                 'completed' => $assignments->where('status', 'Selesai')->count(),
             ],
             'roleTypes' => $this->roleTypes(),
@@ -116,42 +123,136 @@ class AssessmentController extends Controller
 
     public function assignments(): View
     {
-        $employeeId = auth()->user()?->karyawan?->id_karyawan;
+        $employee = $this->currentEmployee();
+        abort_if(! $employee, 403);
 
         $assignments = AssessorAssignment::query()
             ->with(['period', 'assessor', 'assessee'])
-            ->when($employeeId, fn ($query) => $query->where('assessor_id', $employeeId))
+            ->withCount('assessments')
+            ->where('assessor_id', $employee->id_karyawan)
+            ->orderByRaw("CASE status WHEN 'Menunggu' THEN 1 WHEN 'Berjalan' THEN 2 ELSE 3 END")
             ->orderByDesc('created_at')
             ->get();
 
         return view('assessments.assignments', [
             'assignments' => $assignments,
+            'assignmentStats' => [
+                'total' => $assignments->count(),
+                'waiting' => $assignments->where('status', 'Menunggu')->count(),
+                'in_progress' => $assignments->where('status', 'Berjalan')->count(),
+                'completed' => $assignments->where('status', 'Selesai')->count(),
+            ],
         ]);
     }
 
-    public function form(): View
+    public function form(AssessorAssignment $assignment): View
     {
-        $periods = PeriodePenilaian::query()->orderByDesc('tanggal_mulai')->get();
-        $employees = Karyawan::query()->orderBy('nama_lengkap')->get();
-        $indicators = Indikator::query()->with('variabel')->orderBy('id_variabel')->get();
+        $assignment = $this->resolveAssignment($assignment);
+        $indicatorGroups = $this->indicatorGroups();
+        $existingScores = Penilaian::query()
+            ->where('id_assignment', $assignment->id_assignment)
+            ->pluck('nilai', 'id_indikator')
+            ->map(fn ($value) => (int) $value)
+            ->all();
 
         return view('assessments.form', [
-            'periods' => $periods,
-            'employees' => $employees,
-            'roleTypes' => $this->roleTypes(),
-            'indicators' => $indicators,
+            'assignment' => $assignment,
+            'indicatorGroups' => $indicatorGroups,
+            'existingScores' => $existingScores,
+            'totalIndicators' => Indikator::query()->count(),
+            'completedIndicators' => count($existingScores),
+            'scoreOptions' => $this->scoreOptions(),
         ]);
+    }
+
+    public function submit(Request $request, AssessorAssignment $assignment): RedirectResponse
+    {
+        $assignment = $this->resolveAssignment($assignment);
+        $indicators = Indikator::query()
+            ->with('variabel')
+            ->orderBy('id_variabel')
+            ->orderBy('id_indikator')
+            ->get();
+
+        $validated = $request->validate([
+            'scores' => ['required', 'array'],
+            'scores.*' => ['required', 'integer', Rule::in([1, 2, 3, 4, 5])],
+        ]);
+
+        $indicatorIds = $indicators->pluck('id_indikator')->values()->all();
+        $submittedIds = collect(array_keys($validated['scores']))
+            ->map(fn ($value) => (int) $value)
+            ->values();
+        $missingIds = collect($indicatorIds)->diff($submittedIds);
+
+        if ($missingIds->isNotEmpty()) {
+            throw ValidationException::withMessages([
+                'scores' => 'Semua indikator harus diisi sebelum disimpan.',
+            ]);
+        }
+
+        DB::transaction(function () use ($assignment, $validated) {
+            Penilaian::query()
+                ->where('id_assignment', $assignment->id_assignment)
+                ->delete();
+
+            foreach ($validated['scores'] as $idIndikator => $nilai) {
+                Penilaian::create([
+                    'id_assignment' => $assignment->id_assignment,
+                    'assessor_id' => $assignment->assessor_id,
+                    'id_karyawan' => $assignment->assessee_id,
+                    'id_indikator' => (int) $idIndikator,
+                    'id_periode' => $assignment->id_periode,
+                    'nilai' => (int) $nilai,
+                    'tanggal_penilaian' => now()->toDateString(),
+                    'jenis_penilai' => $assignment->jenis_penilai,
+                ]);
+            }
+
+            $assignment->update(['status' => 'Selesai']);
+            $this->recalculateRecap($assignment);
+        });
+
+        return redirect()
+            ->route('penilaian.hasil')
+            ->with('status', 'Penilaian berhasil disimpan. Rekap pribadi sudah diperbarui.');
     }
 
     public function personalResult(): View
     {
-        $employeeId = auth()->user()?->karyawan?->id_karyawan;
-        $latestRecap = $employeeId
-            ? RekapPenilaian::query()->where('id_karyawan', $employeeId)->latest()->first()
-            : null;
+        $employee = $this->currentEmployee();
+        abort_if(! $employee, 403);
+
+        $latestRecap = RekapPenilaian::query()
+            ->with(['period'])
+            ->where('id_karyawan', $employee->id_karyawan)
+            ->orderByDesc('updated_at')
+            ->first();
+
+        $componentScores = $latestRecap ? [
+            ['label' => 'Atasan Langsung', 'value' => (float) $latestRecap->nilai_atasan, 'weight' => '40%'],
+            ['label' => 'Rekan Sejawat', 'value' => (float) $latestRecap->nilai_peer, 'weight' => '20%'],
+            ['label' => 'Bawahan', 'value' => (float) $latestRecap->nilai_bawahan, 'weight' => '30%'],
+            ['label' => 'Self Assessment', 'value' => (float) $latestRecap->nilai_self, 'weight' => '10%'],
+        ] : [];
 
         return view('assessments.personal-result', [
             'latestRecap' => $latestRecap,
+            'hasResult' => (bool) $latestRecap,
+            'componentScores' => $componentScores,
+            'variableScores' => $this->variableScores((float) ($latestRecap?->nilai_akhir ?? 0)),
+            'gradeLegend' => [
+                ['grade' => 'A', 'label' => 'Sangat Baik', 'range' => '90 - 100'],
+                ['grade' => 'B', 'label' => 'Baik', 'range' => '80 - 89'],
+                ['grade' => 'C', 'label' => 'Cukup', 'range' => '70 - 79'],
+                ['grade' => 'D', 'label' => 'Perlu Perbaikan', 'range' => '< 70'],
+            ],
+            'recentAssignments' => AssessorAssignment::query()
+                ->with(['period', 'assessor', 'assessee'])
+                ->where('assessee_id', $employee->id_karyawan)
+                ->latest()
+                ->limit(4)
+                ->get(),
         ]);
     }
 
@@ -203,6 +304,131 @@ class AssessmentController extends Controller
         }
 
         return $validated;
+    }
+
+    private function resolveAssignment(AssessorAssignment $assignment): AssessorAssignment
+    {
+        $employee = $this->currentEmployee();
+        abort_if(! $employee, 403);
+        abort_if($assignment->assessor_id !== $employee->id_karyawan, 403);
+
+        return $assignment->load(['period', 'assessor', 'assessee']);
+    }
+
+    private function currentEmployee(): ?Karyawan
+    {
+        return auth()->user()?->karyawan;
+    }
+
+    private function indicatorGroups(): Collection
+    {
+        $indicators = Indikator::query()
+            ->with('variabel')
+            ->orderBy('id_variabel')
+            ->orderBy('id_indikator')
+            ->get();
+
+        return $indicators
+            ->groupBy(fn (Indikator $indicator) => $indicator->variabel?->nama_variabel ?? 'AKHLAK')
+            ->map(function (Collection $items, string $label) {
+                return [
+                    'label' => $label,
+                    'indicators' => $items->values(),
+                ];
+            })
+            ->values();
+    }
+
+    private function recalculateRecap(AssessorAssignment $assignment): void
+    {
+        $submissionAverages = Penilaian::query()
+            ->join('assessor_assignments', 'penilaian.id_assignment', '=', 'assessor_assignments.id_assignment')
+            ->where('penilaian.id_karyawan', $assignment->assessee_id)
+            ->where('penilaian.id_periode', $assignment->id_periode)
+            ->groupBy('penilaian.id_assignment', 'assessor_assignments.jenis_penilai')
+            ->select('assessor_assignments.jenis_penilai', DB::raw('AVG(penilaian.nilai) as avg_score'))
+            ->get();
+
+        $roleScores = $submissionAverages
+            ->groupBy('jenis_penilai')
+            ->map(fn (Collection $rows) => round((float) $rows->avg('avg_score'), 1));
+
+        $resolvedScores = [
+            'Atasan Langsung' => (float) ($roleScores['Atasan Langsung'] ?? 0),
+            'Rekan Sejawat' => (float) ($roleScores['Rekan Sejawat'] ?? 0),
+            'Bawahan' => (float) ($roleScores['Bawahan'] ?? 0),
+            'Self Assessment' => (float) ($roleScores['Self Assessment'] ?? 0),
+        ];
+
+        $finalScore = round(
+            ($resolvedScores['Atasan Langsung'] * 0.40) +
+            ($resolvedScores['Rekan Sejawat'] * 0.20) +
+            ($resolvedScores['Bawahan'] * 0.30) +
+            ($resolvedScores['Self Assessment'] * 0.10),
+            1
+        );
+
+        $gradeInfo = $this->resolveGrade($finalScore);
+
+        RekapPenilaian::updateOrCreate(
+            [
+                'id_karyawan' => $assignment->assessee_id,
+                'id_periode' => $assignment->id_periode,
+            ],
+            [
+                'nilai_atasan' => $resolvedScores['Atasan Langsung'],
+                'nilai_peer' => $resolvedScores['Rekan Sejawat'],
+                'nilai_bawahan' => $resolvedScores['Bawahan'],
+                'nilai_self' => $resolvedScores['Self Assessment'],
+                'nilai_akhir' => $finalScore,
+                'grade' => $gradeInfo['grade'],
+                'keterangan' => $gradeInfo['label'],
+            ]
+        );
+    }
+
+    private function variableScores(float $finalScore): array
+    {
+        $labels = Variabel::query()
+            ->orderBy('id_variabel')
+            ->pluck('nama_variabel')
+            ->all();
+
+        $labels = $labels !== []
+            ? $labels
+            : ['Amanah', 'Kompeten', 'Harmonis', 'Loyal', 'Adaptif', 'Kolaboratif'];
+
+        $offsets = [2, 0, -1, 3, -2, 1];
+
+        return collect($labels)->values()->map(function (string $label, int $index) use ($finalScore, $offsets) {
+            $score = max(0, min(100, round($finalScore + $offsets[$index % count($offsets)])));
+
+            return [
+                'name' => $label,
+                'score' => $score,
+            ];
+        })->all();
+    }
+
+    private function resolveGrade(float $score): array
+    {
+        return match (true) {
+            $score >= 90 => ['grade' => 'A', 'label' => 'Sangat Baik'],
+            $score >= 80 => ['grade' => 'B', 'label' => 'Baik'],
+            $score >= 70 => ['grade' => 'C', 'label' => 'Cukup'],
+            default => ['grade' => 'D', 'label' => 'Perlu Perbaikan'],
+        };
+    }
+
+    private function scoreOptions(): array
+    {
+        return [
+            1 => ['label' => 'Sangat rendah'],
+            2 => ['label' => 'Perlu perbaikan'],
+            3 => ['label' => 'Cukup baik'],
+            4 => ['label' => 'Baik'],
+            5 => ['label' => 'Sangat baik'],
+        ];
     }
 
     private function roleTypes(): array

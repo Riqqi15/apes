@@ -68,7 +68,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/biodata', [EmployeeController::class, 'edit'])->name('biodata.edit');
         Route::put('/biodata', [EmployeeController::class, 'update'])->name('biodata.update');
         Route::get('/penilaian/assignments', [AssessmentController::class, 'assignments'])->name('penilaian.assignments');
-        Route::get('/penilaian/form', [AssessmentController::class, 'form'])->name('penilaian.form');
+        Route::get('/penilaian/form/{assignment}', [AssessmentController::class, 'form'])->name('penilaian.form');
+        Route::post('/penilaian/form/{assignment}', [AssessmentController::class, 'submit'])->name('penilaian.submit');
         Route::get('/penilaian/hasil', [AssessmentController::class, 'personalResult'])->name('penilaian.hasil');
     });
 });

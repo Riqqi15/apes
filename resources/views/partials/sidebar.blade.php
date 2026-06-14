@@ -20,7 +20,7 @@
         ],
         'karyawan' => [
             ['label' => 'Dashboard', 'route' => 'dashboard.karyawan', 'icon' => 'dashboard', 'patterns' => ['dashboard.karyawan']],
-            ['label' => 'Melakukan Penilaian', 'route' => 'penilaian.form', 'icon' => 'fact_check', 'patterns' => ['penilaian.form']],
+            ['label' => 'Melakukan Penilaian', 'route' => 'penilaian.assignments', 'icon' => 'fact_check', 'patterns' => ['penilaian.assignments', 'penilaian.form']],
             ['label' => 'Hasil Pribadi', 'route' => 'penilaian.hasil', 'icon' => 'workspace_premium', 'patterns' => ['penilaian.hasil']],
             ['label' => 'Edit Biodata', 'route' => 'biodata.edit', 'icon' => 'person', 'patterns' => ['biodata.edit']],
         ],

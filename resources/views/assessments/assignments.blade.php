@@ -17,16 +17,16 @@
         </div>
         <div class="hero-panel-summary">
             <div class="summary-chip summary-chip-tight">
-                <strong>{{ $assignmentStats['total'] }}</strong>
                 <span>Total assignment</span>
+                <strong>{{ $assignmentStats['total'] }}</strong>
             </div>
             <div class="summary-chip summary-chip-tight">
-                <strong>{{ $assignmentStats['waiting'] }}</strong>
                 <span>Menunggu</span>
+                <strong>{{ $assignmentStats['waiting'] }}</strong>
             </div>
             <div class="summary-chip summary-chip-tight">
-                <strong>{{ $assignmentStats['completed'] }}</strong>
                 <span>Selesai</span>
+                <strong>{{ $assignmentStats['completed'] }}</strong>
             </div>
         </div>
     </section>

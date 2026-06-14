@@ -13,12 +13,12 @@
         </div>
         <div class="hero-panel-summary">
             <div class="summary-chip summary-chip-tight">
-                <strong id="previewFinal">{{ $preview['final'] }}</strong>
                 <span>Final Score</span>
+                <strong id="previewFinal">{{ $preview['final'] }}</strong>
             </div>
             <div class="summary-chip summary-chip-tight">
-                <strong id="previewGrade">{{ $preview['grade'] }}</strong>
                 <span>Grade</span>
+                <strong id="previewGrade">{{ $preview['grade'] }}</strong>
             </div>
         </div>
     </section>

@@ -114,35 +114,33 @@ function bindAssessmentForm() {
         return;
     }
 
-    const groups = Array.from(form.querySelectorAll('[data-score-group]'));
+    const indicatorCards = Array.from(form.querySelectorAll('[data-indicator-card]'));
+    const scoreInputs = Array.from(form.querySelectorAll('input[type="radio"]'));
     const progressCount = form.querySelector('[data-progress-count]');
     const progressTotal = form.querySelector('[data-progress-total]');
     const progressBar = form.querySelector('[data-progress-bar]');
-    const total = groups.length;
+    const total = indicatorCards.length;
 
     if (progressTotal) {
         progressTotal.textContent = String(total);
     }
 
-    const syncGroup = (group) => {
-        const checked = group.querySelector('input[type="radio"]:checked');
+    const syncCard = (card) => {
+        const checked = card.querySelector('input[type="radio"]:checked');
 
-        group.querySelectorAll('[data-score-button]').forEach((button) => {
+        card.querySelectorAll('[data-score-button]').forEach((button) => {
             button.classList.toggle('is-active', button.contains(checked));
         });
+
+        card.classList.toggle('is-complete', Boolean(checked));
     };
 
     const syncProgress = () => {
-        let completed = 0;
+        const completed = indicatorCards.reduce((count, card) => {
+            return count + (card.querySelector('input[type="radio"]:checked') ? 1 : 0);
+        }, 0);
 
-        groups.forEach((group) => {
-            const checked = group.querySelector('input[type="radio"]:checked');
-            if (checked) {
-                completed += 1;
-            }
-
-            syncGroup(group);
-        });
+        indicatorCards.forEach((card) => syncCard(card));
 
         if (progressCount) {
             progressCount.textContent = String(completed);
@@ -153,20 +151,24 @@ function bindAssessmentForm() {
         }
     };
 
-    form.addEventListener('change', (event) => {
+    const handleSync = (event) => {
         if (!event.target.matches('input[type="radio"]')) {
             return;
         }
 
-        const group = event.target.closest('[data-score-group]');
-        if (group) {
-            syncGroup(group);
-        }
-
         syncProgress();
+    };
+
+    scoreInputs.forEach((input) => {
+        input.addEventListener('change', syncProgress);
     });
 
-    syncProgress();
+    form.addEventListener('change', handleSync);
+    form.addEventListener('input', handleSync);
+    form.addEventListener('click', handleSync);
+    window.addEventListener('pageshow', syncProgress);
+
+    window.requestAnimationFrame(syncProgress);
 }
 
 document.addEventListener('DOMContentLoaded', () => {

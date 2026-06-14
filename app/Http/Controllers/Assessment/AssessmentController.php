@@ -299,7 +299,7 @@ class AssessmentController extends Controller
 
         if ($duplicate) {
             throw ValidationException::withMessages([
-                'jenis_penilai' => 'Assignment dengan kombinasi periode, assessor, assessee, dan tipe ini sudah ada.',
+                'assignment_exists' => 'Assignment untuk periode ini sudah ada untuk kombinasi assessor, assessee, dan tipe penilai tersebut.',
             ]);
         }
 
@@ -354,19 +354,13 @@ class AssessmentController extends Controller
             ->map(fn (Collection $rows) => round((float) $rows->avg('avg_score'), 1));
 
         $resolvedScores = [
-            'Atasan Langsung' => (float) ($roleScores['Atasan Langsung'] ?? 0),
-            'Rekan Sejawat' => (float) ($roleScores['Rekan Sejawat'] ?? 0),
-            'Bawahan' => (float) ($roleScores['Bawahan'] ?? 0),
-            'Self Assessment' => (float) ($roleScores['Self Assessment'] ?? 0),
+            'Atasan Langsung' => (float) ($roleScores['Atasan Langsung'] ?? 0) * 20,
+            'Rekan Sejawat' => (float) ($roleScores['Rekan Sejawat'] ?? 0) * 20,
+            'Bawahan' => (float) ($roleScores['Bawahan'] ?? 0) * 20,
+            'Self Assessment' => (float) ($roleScores['Self Assessment'] ?? 0) * 20,
         ];
 
-        $finalScore = round(
-            ($resolvedScores['Atasan Langsung'] * 0.40) +
-            ($resolvedScores['Rekan Sejawat'] * 0.20) +
-            ($resolvedScores['Bawahan'] * 0.30) +
-            ($resolvedScores['Self Assessment'] * 0.10),
-            1
-        );
+        $finalScore = $this->weightedFinalScore($resolvedScores);
 
         $gradeInfo = $this->resolveGrade($finalScore);
 
@@ -418,6 +412,36 @@ class AssessmentController extends Controller
             $score >= 70 => ['grade' => 'C', 'label' => 'Cukup'],
             default => ['grade' => 'D', 'label' => 'Perlu Perbaikan'],
         };
+    }
+
+    private function weightedFinalScore(array $resolvedScores): float
+    {
+        $weights = [
+            'Atasan Langsung' => 40,
+            'Rekan Sejawat' => 20,
+            'Bawahan' => 30,
+            'Self Assessment' => 10,
+        ];
+
+        $weightedTotal = 0.0;
+        $weightUsed = 0.0;
+
+        foreach ($weights as $role => $weight) {
+            $score = (float) ($resolvedScores[$role] ?? 0);
+
+            if ($score <= 0) {
+                continue;
+            }
+
+            $weightedTotal += $score * $weight;
+            $weightUsed += $weight;
+        }
+
+        if ($weightUsed <= 0) {
+            return 0.0;
+        }
+
+        return round($weightedTotal / $weightUsed, 1);
     }
 
     private function scoreOptions(): array

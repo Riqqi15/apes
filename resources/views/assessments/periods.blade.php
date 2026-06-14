@@ -353,11 +353,23 @@
         </div>
     @endif
 
-    @if($errors->any())
+    @php
+        $duplicateAssignmentError = $errors->first('assignment_exists');
+        $otherErrors = collect($errors->all())->reject(fn ($error) => $error === $duplicateAssignmentError);
+    @endphp
+
+    @if($duplicateAssignmentError)
+        <div class="alert alert-danger border-0 shadow-sm mb-0">
+            <strong>Assignment sudah ada.</strong>
+            <div class="mt-1">{{ $duplicateAssignmentError }}</div>
+        </div>
+    @endif
+
+    @if($otherErrors->isNotEmpty())
         <div class="alert alert-danger border-0 shadow-sm mb-0">
             <strong>Input belum rapi.</strong>
             <ul class="mb-0 mt-2 ps-3">
-                @foreach($errors->all() as $error)
+                @foreach($otherErrors as $error)
                     <li>{{ $error }}</li>
                 @endforeach
             </ul>
@@ -451,9 +463,8 @@
                         <div>
                             <span class="section-pill">Weight Config</span>
                             <h3>Bobot 360 yang dipakai</h3>
-                            <p>Konfigurasi default yang aktif untuk seluruh periode penilaian.</p>
+                            <p>Komposisi aktif untuk seluruh periode penilaian.</p>
                         </div>
-                        <strong class="text-primary">100%</strong>
                     </div>
                     <div class="assessment-weight-grid">
                         <div class="weight-chip">
@@ -473,6 +484,7 @@
                             <span>10%</span>
                         </div>
                     </div>
+                    <div class="assessment-weight-foot">Komposisi aktif untuk seluruh periode penilaian.</div>
                 </div>
             </aside>
 

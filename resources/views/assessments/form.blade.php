@@ -4,6 +4,14 @@
 @section('page_title','Melakukan Penilaian')
 
 @section('content')
+@php
+    $renderedCompletedIndicators = collect($indicatorGroups)->sum(function ($group) use ($existingScores) {
+        return collect($group['indicators'])->filter(function ($indicator) use ($existingScores) {
+            return filled(old('scores.' . $indicator->id_indikator, $existingScores[$indicator->id_indikator] ?? null));
+        })->count();
+    });
+@endphp
+
 <div class="dashboard-grid">
     @if(session('status'))
         <div class="alert alert-success border-0 shadow-sm mb-0">{{ session('status') }}</div>
@@ -17,16 +25,16 @@
         </div>
         <div class="hero-panel-summary">
             <div class="summary-chip summary-chip-tight">
-                <strong>{{ $assignment->period?->nama_periode ?? '-' }}</strong>
                 <span>Periode</span>
+                <strong>{{ $assignment->period?->nama_periode ?? '-' }}</strong>
             </div>
             <div class="summary-chip summary-chip-tight">
-                <strong>{{ $assignment->assessee?->nama_lengkap ?? '-' }}</strong>
                 <span>Assessee</span>
+                <strong>{{ $assignment->assessee?->nama_lengkap ?? '-' }}</strong>
             </div>
             <div class="summary-chip summary-chip-tight">
-                <strong>{{ $assignment->status }}</strong>
                 <span>Status assignment</span>
+                <strong>{{ $assignment->status }}</strong>
             </div>
         </div>
     </section>
@@ -39,7 +47,7 @@
                     <h3>Skor per indikator</h3>
                 </div>
                 <div class="assessment-progress-copy">
-                    <strong><span data-progress-count>{{ $completedIndicators }}</span>/<span data-progress-total>{{ $totalIndicators }}</span></strong>
+                    <strong><span data-progress-count>{{ $renderedCompletedIndicators }}</span>/<span data-progress-total>{{ $totalIndicators }}</span></strong>
                     <span>indikator terisi</span>
                 </div>
             </div>
@@ -67,10 +75,12 @@
                                 @php
                                     $selectedValue = old('scores.' . $indicator->id_indikator, $existingScores[$indicator->id_indikator] ?? null);
                                 @endphp
-                                <div class="assessment-indicator">
-                                    <div class="assessment-indicator-copy">
-                                        <strong>{{ $indicator->nama_indikator }}</strong>
-                                        <span>{{ $indicator->nama_variabel_penilaian ?? 'Indikator AKHLAK' }}</span>
+                                <div class="assessment-indicator" data-indicator-card>
+                                    <div class="assessment-indicator-head">
+                                        <div class="assessment-indicator-copy">
+                                            <strong>{{ $indicator->nama_indikator }}</strong>
+                                            <span>{{ $indicator->nama_variabel_penilaian ?? 'Indikator AKHLAK' }}</span>
+                                        </div>
                                     </div>
                                     <div class="assessment-score-options" data-score-group>
                                         @foreach($scoreOptions as $value => $option)
@@ -105,28 +115,28 @@
             </div>
 
             <div class="assessment-summary-body">
-                <div class="detail-list assessment-detail-list">
-                    <div>
+                <div class="assessment-review-grid">
+                    <div class="assessment-review-item">
+                        <span>Asesor</span>
                         <strong>{{ $assignment->assessor?->nama_lengkap ?? '-' }}</strong>
-                        <span>Assessor</span>
                     </div>
-                    <div>
-                        <strong>{{ $assignment->jenis_penilai }}</strong>
+                    <div class="assessment-review-item">
                         <span>Tipe penilai</span>
+                        <strong>{{ $assignment->jenis_penilai }}</strong>
                     </div>
-                    <div>
-                        <strong>{{ $assignment->deadline?->format('d M Y') ?? '-' }}</strong>
+                    <div class="assessment-review-item">
                         <span>Deadline</span>
+                        <strong>{{ $assignment->deadline?->format('d M Y') ?? '-' }}</strong>
                     </div>
-                    <div>
-                        <strong>{{ $assignment->status }}</strong>
+                    <div class="assessment-review-item">
                         <span>Status</span>
+                        <strong>{{ $assignment->status }}</strong>
                     </div>
                 </div>
 
                 <div class="assessment-progress-box">
                     <div class="assessment-progress-bar">
-                        <span data-progress-bar style="width: {{ $totalIndicators > 0 ? round(($completedIndicators / $totalIndicators) * 100) : 0 }}%"></span>
+                        <span data-progress-bar style="width: {{ $totalIndicators > 0 ? round(($renderedCompletedIndicators / $totalIndicators) * 100) : 0 }}%"></span>
                     </div>
                     <small>Progress pengisian</small>
                 </div>

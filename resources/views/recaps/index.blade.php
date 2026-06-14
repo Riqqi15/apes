@@ -14,8 +14,8 @@
         <div class="hero-panel-summary">
             @foreach($summaryCards as $summary)
                 <div class="summary-chip summary-chip-tight">
-                    <strong>{{ $summary['value'] }}</strong>
                     <span>{{ $summary['title'] }}</span>
+                    <strong>{{ $summary['value'] }}</strong>
                 </div>
             @endforeach
         </div>

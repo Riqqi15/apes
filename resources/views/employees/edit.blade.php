@@ -13,12 +13,12 @@
         </div>
         <div class="hero-panel-summary">
             <div class="summary-chip summary-chip-tight">
-                <strong>{{ $employee->nip ?? 'EMP-2026-0042' }}</strong>
                 <span>NIP</span>
+                <strong>{{ $employee->nip ?? 'EMP-2026-0042' }}</strong>
             </div>
             <div class="summary-chip summary-chip-tight">
-                <strong>{{ $employee->no_hp ?? '0812-3456-7890' }}</strong>
                 <span>No. HP</span>
+                <strong>{{ $employee->no_hp ?? '0812-3456-7890' }}</strong>
             </div>
         </div>
     </section>

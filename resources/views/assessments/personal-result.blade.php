@@ -29,21 +29,21 @@
             </div>
             <div class="hero-panel-summary">
                 <div class="summary-chip summary-chip-tight">
-                    <strong>{{ number_format((float) $latestRecap->nilai_akhir, 1) }}</strong>
                     <span>Final score</span>
+                    <strong>{{ number_format((float) $latestRecap->nilai_akhir, 1) }}</strong>
                 </div>
                 <div class="summary-chip summary-chip-tight">
-                    <strong>{{ $latestRecap->grade }}</strong>
                     <span>Grade</span>
+                    <strong>{{ $latestRecap->grade }}</strong>
                 </div>
                 <div class="summary-chip summary-chip-tight">
-                    <strong>{{ $latestRecap->period?->nama_periode ?? '-' }}</strong>
                     <span>Periode</span>
+                    <strong>{{ $latestRecap->period?->nama_periode ?? '-' }}</strong>
                 </div>
             </div>
         </section>
 
-        <section class="content-grid content-grid-wide">
+        <section class="content-grid">
             <div class="dashboard-card card">
                 <div class="dashboard-card-head">
                     <div>
@@ -96,9 +96,12 @@
                 <div class="timeline-list">
                     @forelse($recentAssignments as $assignment)
                         <div class="timeline-row">
-                            <div>
+                            <div class="timeline-copy">
                                 <strong>{{ $assignment->period?->nama_periode ?? '-' }}</strong>
-                                <span>{{ $assignment->jenis_penilai }} oleh {{ $assignment->assessor?->nama_lengkap ?? '-' }}</span>
+                                <div class="timeline-meta">
+                                    <span>{{ $assignment->jenis_penilai }}</span>
+                                    <small>oleh {{ $assignment->assessor?->nama_lengkap ?? '-' }}</small>
+                                </div>
                             </div>
                             <span class="status-pill {{ $assignment->status === 'Selesai' ? 'status-pill-success' : 'status-pill-warning' }}">{{ $assignment->status }}</span>
                         </div>
@@ -117,7 +120,7 @@
                 </div>
                 <div class="detail-list">
                     @foreach($gradeLegend as $item)
-                        <div>
+                        <div class="grade-guide-item">
                             <strong>Grade {{ $item['grade'] }} - {{ $item['label'] }}</strong>
                             <span>{{ $item['range'] }}</span>
                         </div>

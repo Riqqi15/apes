@@ -66,16 +66,16 @@ document.addEventListener('DOMContentLoaded', function () {
         </div>
         <div class="hero-panel-summary">
             <div class="summary-chip">
-                <strong>112</strong>
                 <span>Selesai</span>
+                <strong>112</strong>
             </div>
             <div class="summary-chip">
-                <strong>36</strong>
                 <span>Pending</span>
+                <strong>36</strong>
             </div>
             <div class="summary-chip">
-                <strong>86.4</strong>
                 <span>Average</span>
+                <strong>86.4</strong>
             </div>
         </div>
     </section>

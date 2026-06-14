@@ -17,12 +17,12 @@
         </div>
         <div class="hero-panel-summary">
             <div class="summary-chip summary-chip-tight">
-                <strong>{{ $employee['finalScore'] }}</strong>
                 <span>Final Score</span>
+                <strong>{{ $employee['finalScore'] }}</strong>
             </div>
             <div class="summary-chip summary-chip-tight">
-                @include('components.grade-badge', ['grade' => $employee['grade'], 'label' => $employee['grade']])
                 <span>Grade</span>
+                @include('components.grade-badge', ['grade' => $employee['grade'], 'label' => $employee['grade']])
             </div>
             <a href="{{ $editUrl }}" class="btn btn-apes">Edit Penilaian</a>
         </div>

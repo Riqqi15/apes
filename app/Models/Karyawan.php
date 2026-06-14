@@ -14,6 +14,7 @@ class Karyawan extends Model
     protected $fillable = [
         'id_users',
         'nip',
+        'departemen',
         'nama_lengkap',
         'no_hp',
         'jabatan',
@@ -41,5 +42,15 @@ class Karyawan extends Model
     public function rekapPenilaian(): HasMany
     {
         return $this->hasMany(RekapPenilaian::class, 'id_karyawan', 'id_karyawan');
+    }
+
+    public function assessorAssignments(): HasMany
+    {
+        return $this->hasMany(AssessorAssignment::class, 'assessor_id', 'id_karyawan');
+    }
+
+    public function assessmentTargets(): HasMany
+    {
+        return $this->hasMany(AssessorAssignment::class, 'assessee_id', 'id_karyawan');
     }
 }

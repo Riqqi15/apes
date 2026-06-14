@@ -8,16 +8,16 @@
     <section class="hero-panel card hero-panel-personal">
         <div class="hero-panel-copy">
             <span class="section-pill">Personal Result</span>
-            <h2>Nilai final Anda adalah 91.2</h2>
-            <p>Grade A, dengan performa paling kuat di Loyal dan Kolaboratif.</p>
+            <h2>Nilai final Anda adalah {{ $latestRecap?->nilai_akhir ?? '91.2' }}</h2>
+            <p>Grade {{ $latestRecap?->grade ?? 'A' }}, dengan performa paling kuat di Loyal dan Kolaboratif.</p>
         </div>
         <div class="hero-panel-summary">
             <div class="summary-chip summary-chip-tight">
-                <strong>91.2</strong>
+                <strong>{{ $latestRecap?->nilai_akhir ?? '91.2' }}</strong>
                 <span>Final Score</span>
             </div>
             <div class="summary-chip summary-chip-tight">
-                <strong>A</strong>
+                <strong>{{ $latestRecap?->grade ?? 'A' }}</strong>
                 <span>Grade</span>
             </div>
         </div>

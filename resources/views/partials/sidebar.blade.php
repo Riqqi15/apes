@@ -17,7 +17,6 @@
         'direktur' => [
             ['label' => 'Dashboard', 'route' => 'dashboard.direktur', 'icon' => 'dashboard', 'patterns' => ['dashboard.direktur']],
             ['label' => 'Rekap Penilaian', 'route' => 'rekap', 'icon' => 'summarize', 'patterns' => ['rekap', 'rekap.show']],
-            ['label' => 'Cetak Hasil', 'route' => 'laporan.cetak', 'icon' => 'print', 'patterns' => ['laporan.cetak']],
         ],
         'karyawan' => [
             ['label' => 'Dashboard', 'route' => 'dashboard.karyawan', 'icon' => 'dashboard', 'patterns' => ['dashboard.karyawan']],

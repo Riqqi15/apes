@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\AssessorAssignment;
 use App\Models\Direktur;
 use App\Models\Hr;
 use App\Models\Indikator;
@@ -56,6 +57,7 @@ class DatabaseSeeder extends Seeder
         $karyawan = Karyawan::create([
             'id_users' => $karyawanUser->id_users,
             'nip' => 'EMP-0003',
+            'departemen' => 'Operations',
             'nama_lengkap' => 'Andi Wijaya',
             'no_hp' => '08123456789',
             'jabatan' => 'Staf Operasional',
@@ -92,6 +94,7 @@ class DatabaseSeeder extends Seeder
 
         RekapPenilaian::create([
             'id_karyawan' => $karyawan->id_karyawan,
+            'id_periode' => $periode->id_periode,
             'nilai_atasan' => 85,
             'nilai_peer' => 80,
             'nilai_bawahan' => 82,
@@ -99,6 +102,15 @@ class DatabaseSeeder extends Seeder
             'nilai_akhir' => 84.3,
             'grade' => 'D',
             'keterangan' => 'Baik',
+        ]);
+
+        AssessorAssignment::create([
+            'id_periode' => $periode->id_periode,
+            'assessor_id' => $karyawan->id_karyawan,
+            'assessee_id' => $karyawan->id_karyawan,
+            'jenis_penilai' => 'Self Assessment',
+            'status' => 'Menunggu',
+            'deadline' => '2026-06-25',
         ]);
     }
 }

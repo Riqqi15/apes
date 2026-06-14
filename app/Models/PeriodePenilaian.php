@@ -24,4 +24,9 @@ class PeriodePenilaian extends Model
     {
         return $this->hasMany(Penilaian::class, 'id_periode', 'id_periode');
     }
+
+    public function assignments(): HasMany
+    {
+        return $this->hasMany(AssessorAssignment::class, 'id_periode', 'id_periode');
+    }
 }

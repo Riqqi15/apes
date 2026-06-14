@@ -5,6 +5,10 @@
 
 @section('content')
 <div class="dashboard-grid">
+    @if(session('status'))
+        <div class="alert alert-success border-0 shadow-sm mb-0">{{ session('status') }}</div>
+    @endif
+
     <section class="hero-panel card hero-panel-print">
         <div class="hero-panel-copy">
             <span class="section-pill">Detail Hasil</span>
@@ -20,6 +24,7 @@
                 @include('components.grade-badge', ['grade' => $employee['grade'], 'label' => $employee['grade']])
                 <span>Grade</span>
             </div>
+            <a href="{{ $editUrl }}" class="btn btn-apes">Edit Penilaian</a>
         </div>
     </section>
 
@@ -79,12 +84,14 @@
     </section>
 
     <section class="dashboard-card card">
-        <div class="dashboard-card-head d-flex justify-content-between align-items-center">
+        <div class="dashboard-card-head">
             <div>
-                <span class="section-pill">Print Ready</span>
-                <h3>Siap cetak dan ekspor</h3>
+                <span class="section-pill">Print Access</span>
+                <h3>Cetak hanya dari halaman rekap</h3>
             </div>
-            <a href="{{ route('laporan.cetak') }}" class="btn btn-apes">Buka Print View</a>
+        </div>
+        <div class="p-4 pt-0 text-secondary">
+            Gunakan icon print pada tabel rekap penilaian untuk membuka versi cetak yang tervalidasi.
         </div>
     </section>
 </div>

@@ -28,29 +28,30 @@
                 <h3>Pilih periode dan departemen</h3>
             </div>
         </div>
-        <div class="row g-3 px-4 pb-4">
+        <form class="row g-3 px-4 pb-4" method="GET" action="{{ route('rekap') }}">
             <div class="col-md-4">
                 <label class="form-label fw-semibold">Periode</label>
-                <select class="form-select">
+                <select class="form-select" name="period">
+                    <option value="">Semua Periode</option>
                     @foreach($periods as $period)
-                        <option>{{ $period['label'] }}</option>
+                        <option value="{{ $period['value'] }}" @selected(($filters['period'] ?? '') === (string) $period['value'])>{{ $period['label'] }}</option>
                     @endforeach
                 </select>
             </div>
             <div class="col-md-4">
                 <label class="form-label fw-semibold">Departemen</label>
-                <select class="form-select">
-                    <option>Semua Departemen</option>
-                    <option>Finance</option>
-                    <option>Operations</option>
-                    <option>Commercial</option>
+                <select class="form-select" name="department">
+                    <option value="">Semua Departemen</option>
+                    @foreach($departments as $department)
+                        <option value="{{ $department }}" @selected(($filters['department'] ?? '') === $department)>{{ $department }}</option>
+                    @endforeach
                 </select>
             </div>
             <div class="col-md-4 d-flex align-items-end gap-2">
-                <button class="btn btn-apes">Terapkan Filter</button>
-                <button class="btn btn-outline-secondary">Reset</button>
+                <button class="btn btn-apes" type="submit">Terapkan Filter</button>
+                <a href="{{ route('rekap') }}" class="btn btn-outline-secondary">Reset</a>
             </div>
-        </div>
+        </form>
     </section>
 
     <section class="dashboard-card card">
@@ -70,7 +71,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($rows as $row)
+                    @forelse($rows as $row)
                         <tr>
                             <td class="fw-semibold">{{ $row['name'] }}</td>
                             <td>{{ $row['department'] }}</td>
@@ -80,20 +81,18 @@
                             <td>{{ $row['self'] }}</td>
                             <td class="fw-semibold">{{ $row['final'] }}</td>
                             <td>@include('components.grade-badge', ['grade' => $row['grade'], 'label' => $row['grade']])</td>
-                            <td>@include('components.table-actions', ['view' => route('rekap.show', 1)])</td>
+                            <td>@include('components.table-actions', ['view' => route('rekap.show', $row['id']), 'edit' => route('rekap.edit', $row['id']), 'print' => $row['print_url']])</td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="9" class="text-center text-secondary py-4">Belum ada data rekap untuk filter yang dipilih.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
         <div class="pagination-note">
-            <span>Menampilkan 5 dari 112 data</span>
-            <div class="fake-pagination">
-                <span class="active">1</span>
-                <span>2</span>
-                <span>3</span>
-                <span>4</span>
-            </div>
+            <span>Menampilkan {{ $resultCount }} data rekap.</span>
         </div>
     </section>
 </div>

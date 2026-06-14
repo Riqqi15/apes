@@ -790,6 +790,16 @@ a {
   color: var(--apes-warning);
 }
 
+.status-pill-danger {
+  background: rgba(220, 38, 38, 0.12);
+  color: var(--apes-danger);
+}
+
+.status-pill-neutral {
+  background: rgba(100, 116, 139, 0.12);
+  color: var(--apes-muted);
+}
+
 .detail-list,
 .variable-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -821,6 +831,10 @@ a {
   gap: 0.45rem;
 }
 
+.table-actions form {
+  margin: 0;
+}
+
 .action-btn {
   width: 34px;
   height: 34px;
@@ -830,6 +844,7 @@ a {
   border: 1px solid var(--apes-border);
   color: var(--apes-muted);
   background: #fff;
+  padding: 0;
 }
 
 .action-btn svg {
@@ -847,6 +862,10 @@ a {
 
 .action-btn-delete {
   color: var(--apes-danger);
+}
+
+.action-btn-print {
+  color: var(--apes-navy);
 }
 
 .auth-body {

@@ -161,6 +161,23 @@ document.addEventListener('DOMContentLoaded', function () {
         </div>
     </section>
 
+    <section class="dashboard-card card">
+        <div class="dashboard-card-head">
+            <div>
+                <span class="section-pill">Quick Actions</span>
+                <h3>Akses cepat modul HR</h3>
+            </div>
+        </div>
+        <div class="quick-actions">
+            @foreach($quickActions as $action)
+                <a href="{{ $action['href'] }}" class="quick-action">
+                    <strong>{{ $action['label'] }}</strong>
+                    <span>{{ $action['description'] }}</span>
+                </a>
+            @endforeach
+        </div>
+    </section>
+
     <section class="content-grid content-grid-full">
         <div class="dashboard-card card">
             <div class="dashboard-card-head">

@@ -136,32 +136,6 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
         </div>
 
-        <div class="dashboard-card card">
-            <div class="dashboard-card-head">
-                <div>
-                    <span class="section-pill">Next Step</span>
-                    <h3>Aksi berikutnya</h3>
-                </div>
-            </div>
-            <div class="quick-actions quick-actions-personal">
-                <a href="{{ route('penilaian.assignments') }}" class="quick-action">
-                    <span class="quick-action-icon material-symbols-rounded">fact_check</span>
-                    <span class="quick-action-copy">
-                        <strong>Lihat assignment</strong>
-                        <span>Buka penilaian yang menunggu diselesaikan</span>
-                    </span>
-                    <span class="quick-action-arrow material-symbols-rounded">north_east</span>
-                </a>
-                <a href="{{ route('penilaian.hasil') }}" class="quick-action">
-                    <span class="quick-action-icon material-symbols-rounded">workspace_premium</span>
-                    <span class="quick-action-copy">
-                        <strong>Lihat hasil pribadi</strong>
-                        <span>Buka ringkasan skor final</span>
-                    </span>
-                    <span class="quick-action-arrow material-symbols-rounded">north_east</span>
-                </a>
-            </div>
-        </div>
     </section>
 </div>
 @endsection

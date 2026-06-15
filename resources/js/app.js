@@ -7,7 +7,6 @@ const revealSelector = [
     '.ranking-item',
     '.timeline-row',
     '.component-row',
-    '.quick-action',
 ].join(', ');
 
 function animateNumber(element) {

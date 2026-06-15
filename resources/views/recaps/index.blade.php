@@ -48,7 +48,10 @@
                 </select>
             </div>
             <div class="col-md-4 d-flex align-items-end gap-2">
-                <button class="btn btn-apes" type="submit">Terapkan Filter</button>
+                <button class="btn btn-apes btn-with-icon" type="submit">
+                    <span class="material-symbols-rounded">filter_alt</span>
+                    <span>Terapkan Filter</span>
+                </button>
                 <a href="{{ route('rekap') }}" class="btn btn-outline-secondary">Reset</a>
             </div>
         </form>

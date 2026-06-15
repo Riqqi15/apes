@@ -44,7 +44,13 @@ Route::middleware('auth')->group(function () {
         Route::put('/kelola/karyawan/{id}', [EmployeeController::class, 'update'])->name('kelola.karyawan.update');
         Route::delete('/kelola/karyawan/{id}', [EmployeeController::class, 'destroy'])->name('kelola.karyawan.destroy');
         Route::get('/kelola/variabel', [VariableController::class, 'index'])->name('kelola.variabel');
+        Route::post('/kelola/variabel', [VariableController::class, 'store'])->name('kelola.variabel.store');
+        Route::put('/kelola/variabel/{variabel}', [VariableController::class, 'update'])->name('kelola.variabel.update');
+        Route::delete('/kelola/variabel/{variabel}', [VariableController::class, 'destroy'])->name('kelola.variabel.destroy');
         Route::get('/kelola/indikator', [IndicatorController::class, 'index'])->name('kelola.indikator');
+        Route::post('/kelola/indikator', [IndicatorController::class, 'store'])->name('kelola.indikator.store');
+        Route::put('/kelola/indikator/{indikator}', [IndicatorController::class, 'update'])->name('kelola.indikator.update');
+        Route::delete('/kelola/indikator/{indikator}', [IndicatorController::class, 'destroy'])->name('kelola.indikator.destroy');
         Route::get('/kelola/penilaian', [AssessmentController::class, 'periods'])->name('kelola.penilaian');
         Route::post('/kelola/penilaian/periode', [AssessmentController::class, 'storePeriod'])->name('kelola.penilaian.periods.store');
         Route::put('/kelola/penilaian/periode/{periode}', [AssessmentController::class, 'updatePeriod'])->name('kelola.penilaian.periods.update');

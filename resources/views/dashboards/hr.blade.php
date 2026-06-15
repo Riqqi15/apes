@@ -187,9 +187,15 @@ document.addEventListener('DOMContentLoaded', function () {
                                 <td class="fw-semibold">{{ $employee['name'] }}</td>
                                 <td>{{ $employee['department'] }}</td>
                                 <td>{{ $employee['score'] }}</td>
-                                <td>@include('components.grade-badge', ['grade' => $employee['grade'], 'label' => $employee['grade']])</td>
-                                <td><span class="status-pill status-pill-success">Selesai</span></td>
-                                <td>Hari ini</td>
+                                <td>
+                                    @if($employee['grade'] !== '-')
+                                        @include('components.grade-badge', ['grade' => $employee['grade'], 'label' => $employee['grade']])
+                                    @else
+                                        <span class="status-pill status-pill-neutral">Belum ada</span>
+                                    @endif
+                                </td>
+                                <td><span class="status-pill {{ $employee['grade'] !== '-' ? 'status-pill-success' : 'status-pill-neutral' }}">{{ $employee['grade'] !== '-' ? 'Selesai' : 'Menunggu' }}</span></td>
+                                <td>{{ $employee['grade'] !== '-' ? 'Terbaru' : '-' }}</td>
                             </tr>
                         @endforeach
                     </tbody>

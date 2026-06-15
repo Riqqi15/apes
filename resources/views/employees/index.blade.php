@@ -15,7 +15,10 @@
                 <span class="section-pill">Employee Master</span>
                 <h3>Kelola data karyawan</h3>
             </div>
-            <a href="{{ route('kelola.karyawan.create') }}" class="btn btn-apes">Tambah Karyawan</a>
+            <a href="{{ route('kelola.karyawan.create') }}" class="btn btn-apes btn-with-icon">
+                <span class="material-symbols-rounded">person_add</span>
+                <span>Tambah Karyawan</span>
+            </a>
         </div>
         <form class="row g-3 px-4 pb-4 pt-3" method="GET">
             <div class="col-md-5">
@@ -30,7 +33,10 @@
                 </select>
             </div>
             <div class="col-md-4 d-flex gap-2">
-                <button class="btn btn-apes" type="submit">Filter</button>
+                <button class="btn btn-apes btn-with-icon" type="submit">
+                    <span class="material-symbols-rounded">filter_alt</span>
+                    <span>Filter</span>
+                </button>
                 <a class="btn btn-outline-secondary" href="{{ route('kelola.karyawan') }}">Reset</a>
             </div>
         </form>

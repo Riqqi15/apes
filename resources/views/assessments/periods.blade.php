@@ -207,30 +207,6 @@
         color: var(--apes-muted);
     }
 
-    .assessment-monitor-strip {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 0.65rem;
-    }
-
-    .monitor-mini {
-        padding: 0.9rem 0.95rem;
-        border-radius: 16px;
-        border: 1px solid rgba(5, 59, 120, 0.08);
-        background: #f8fbff;
-        display: grid;
-        gap: 0.12rem;
-    }
-
-    .monitor-mini strong {
-        font-size: 1.05rem;
-    }
-
-    .monitor-mini span {
-        color: var(--apes-muted);
-        font-size: 0.85rem;
-    }
-
     .period-form-grid {
         display: grid;
         grid-template-columns: 1.25fr 0.85fr 0.85fr 0.7fr;
@@ -323,10 +299,6 @@
         .assignment-form-grid,
         .assessment-compact-grid,
         .assessment-weight-grid,
-        .assessment-monitor-strip {
-            grid-template-columns: 1fr;
-        }
-
         .assignment-form-grid .field-span-2,
         .assignment-form-grid .field-span-3 {
             grid-column: auto;
@@ -484,7 +456,6 @@
                             <span>10%</span>
                         </div>
                     </div>
-                    <div class="assessment-weight-foot">Komposisi aktif untuk seluruh periode penilaian.</div>
                 </div>
             </aside>
 
@@ -497,20 +468,20 @@
                             <p>Ringkasan cepat status assignment yang sedang berjalan.</p>
                         </div>
                     </div>
-                    <div class="assessment-monitor-strip">
-                        <div class="monitor-mini">
+                    <div class="assessment-weight-grid">
+                        <div class="weight-chip">
                             <strong>{{ $assignmentStats['total'] }}</strong>
                             <span>Total assignment</span>
                         </div>
-                        <div class="monitor-mini">
+                        <div class="weight-chip">
                             <strong>{{ $assignmentStats['waiting'] }}</strong>
                             <span>Menunggu</span>
                         </div>
-                        <div class="monitor-mini">
+                        <div class="weight-chip">
                             <strong>{{ $assignmentStats['completed'] }}</strong>
                             <span>Selesai</span>
                         </div>
-                        <div class="monitor-mini">
+                        <div class="weight-chip">
                             <strong>{{ $assignmentStats['total'] > 0 ? number_format(($assignmentStats['completed'] / max($assignmentStats['total'], 1)) * 100, 0) : 0 }}%</strong>
                             <span>Coverage</span>
                         </div>
@@ -657,7 +628,12 @@
                     </div>
                 </div>
                 <div class="form-actions-inline">
-                    <button class="btn btn-apes" type="submit">{{ $editingAssignment ? 'Simpan Assignment' : 'Tambah Assignment' }}</button>
+                    <button class="btn btn-apes {{ $editingAssignment ? '' : 'btn-with-icon' }}" type="submit">
+                        @if(!$editingAssignment)
+                            <span class="material-symbols-rounded">add</span>
+                        @endif
+                        <span>{{ $editingAssignment ? 'Simpan Assignment' : 'Tambah Assignment' }}</span>
+                    </button>
                     @if($editingAssignment)
                         <a href="{{ route('kelola.penilaian') }}" class="btn btn-outline-secondary">Batal Edit</a>
                     @endif

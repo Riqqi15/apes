@@ -41,7 +41,7 @@ class AuthPageController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended($this->redirectPath(Auth::user()));
+        return redirect()->to($this->redirectPath(Auth::user()));
     }
 
     public function register(): View

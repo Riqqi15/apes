@@ -83,11 +83,10 @@ class DatabaseSeeder extends Seeder
         }
 
         foreach ([
-            ['A', '0-54', 'A', 'Sangat Kurang'],
-            ['B', '55-69', 'B', 'Kurang'],
+            ['D', '0-69', 'D', 'Perlu Perbaikan'],
             ['C', '70-79', 'C', 'Cukup'],
-            ['D', '80-89', 'D', 'Baik'],
-            ['E', '90-100', 'E', 'Sangat Baik'],
+            ['B', '80-89', 'B', 'Baik'],
+            ['A', '90-100', 'A', 'Sangat Baik'],
         ] as [$skala, $interval, $grade, $keterangan]) {
             Skala::create(compact('skala', 'interval', 'grade', 'keterangan'));
         }
@@ -100,7 +99,7 @@ class DatabaseSeeder extends Seeder
             'nilai_bawahan' => 82,
             'nilai_self' => 90,
             'nilai_akhir' => 84.3,
-            'grade' => 'D',
+            'grade' => 'B',
             'keterangan' => 'Baik',
         ]);
 

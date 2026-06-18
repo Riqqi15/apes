@@ -179,11 +179,21 @@ class AssessmentController extends Controller
             'scores.*' => ['required', 'integer', Rule::in([1, 2, 3, 4, 5])],
         ]);
 
-        $indicatorIds = $indicators->pluck('id_indikator')->values()->all();
-        $submittedIds = collect(array_keys($validated['scores']))
+        $indicatorIds = $indicators->pluck('id_indikator')->values();
+        $submittedKeys = collect(array_keys($validated['scores']));
+        $invalidKeys = $submittedKeys->filter(fn ($value) => ! ctype_digit((string) $value));
+        $submittedIds = $submittedKeys
+            ->filter(fn ($value) => ctype_digit((string) $value))
             ->map(fn ($value) => (int) $value)
             ->values();
-        $missingIds = collect($indicatorIds)->diff($submittedIds);
+        $missingIds = $indicatorIds->diff($submittedIds);
+        $unknownIds = $submittedIds->diff($indicatorIds);
+
+        if ($invalidKeys->isNotEmpty() || $unknownIds->isNotEmpty()) {
+            throw ValidationException::withMessages([
+                'scores' => 'Data indikator tidak valid. Muat ulang form lalu coba lagi.',
+            ]);
+        }
 
         if ($missingIds->isNotEmpty()) {
             throw ValidationException::withMessages([
@@ -191,19 +201,23 @@ class AssessmentController extends Controller
             ]);
         }
 
-        DB::transaction(function () use ($assignment, $validated) {
+        $scores = collect($validated['scores'])
+            ->mapWithKeys(fn ($nilai, $idIndikator) => [(int) $idIndikator => (int) $nilai])
+            ->all();
+
+        DB::transaction(function () use ($assignment, $scores) {
             Penilaian::query()
                 ->where('id_assignment', $assignment->id_assignment)
                 ->delete();
 
-            foreach ($validated['scores'] as $idIndikator => $nilai) {
+            foreach ($scores as $idIndikator => $nilai) {
                 Penilaian::create([
                     'id_assignment' => $assignment->id_assignment,
                     'assessor_id' => $assignment->assessor_id,
                     'id_karyawan' => $assignment->assessee_id,
-                    'id_indikator' => (int) $idIndikator,
+                    'id_indikator' => $idIndikator,
                     'id_periode' => $assignment->id_periode,
-                    'nilai' => (int) $nilai,
+                    'nilai' => $nilai,
                     'tanggal_penilaian' => now()->toDateString(),
                     'jenis_penilai' => $assignment->jenis_penilai,
                 ]);
@@ -259,7 +273,7 @@ class AssessmentController extends Controller
     private function validatePeriod(Request $request): array
     {
         return $request->validate([
-            'nama_periode' => ['required', 'string', 'max:60'],
+            'nama_periode' => ['required', 'string', 'max:20'],
             'tanggal_mulai' => ['required', 'date'],
             'tanggal_selesai' => ['required', 'date', 'after_or_equal:tanggal_mulai'],
             'status' => ['required', Rule::in(['draft', 'active', 'closed'])],

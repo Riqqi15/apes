@@ -55,6 +55,28 @@ class HrController extends Controller
             ->pluck('nama_variabel')
             ->values();
         $performanceValues = $this->buildVariablePerformance($performanceLabels);
+        $quickActions = [
+            [
+                'label' => 'Kelola Data Karyawan',
+                'description' => 'Tambah, ubah, dan rapikan master karyawan.',
+                'href' => route('kelola.karyawan'),
+            ],
+            [
+                'label' => 'Kelola Variabel AKHLAK',
+                'description' => 'Atur variabel inti Amanah sampai Kolaboratif.',
+                'href' => route('kelola.variabel'),
+            ],
+            [
+                'label' => 'Kelola Indikator',
+                'description' => 'Susun indikator penilaian per variabel.',
+                'href' => route('kelola.indikator'),
+            ],
+            [
+                'label' => 'Kelola Penilaian',
+                'description' => 'Kelola periode, bobot, dan assignment evaluator.',
+                'href' => route('kelola.penilaian'),
+            ],
+        ];
 
         return view('dashboards.hr', [
             'pageRole' => 'hr',
@@ -118,6 +140,7 @@ class HrController extends Controller
             ],
             'performanceLabels' => $performanceLabels->all(),
             'performanceValues' => $performanceValues,
+            'quickActions' => $quickActions,
             'topEmployees' => $topEmployees->isNotEmpty() ? $topEmployees->all() : [
                 ['name' => 'Belum ada rekap', 'department' => '-', 'score' => '0.0', 'grade' => '-'],
             ],
